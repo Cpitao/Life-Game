@@ -1,25 +1,23 @@
 package agh.ics.oop;
 
 import agh.ics.oop.mapparts.IMapElement;
-import agh.ics.oop.maps.IWorldMap;
+import agh.ics.oop.maps.AbstractMap;
+import javafx.scene.paint.Color;
+
+import java.util.LinkedList;
 
 public class Plant implements IMapElement {
 
-    public final static String imageSource = "src/main/java/resources/grass.jpg";
-    private Vector2d position;
-    private int energy;
-    private IWorldMap map;
+    private static Color plantColor = Color.rgb(0, 255, 0);
+    private final Vector2d position;
+    private final AbstractMap map;
+    private LinkedList<IMapElementRemovedObserver> objectRemovedObservers = new LinkedList<>();
 
-    public Plant(IWorldMap map, Vector2d position, int energy)
+    public Plant(AbstractMap map, Vector2d position)
     {
         this.position = position;
-        this.energy = energy;
         this.map = map;
-    }
-
-    public int getEnergy()
-    {
-        return this.energy;
+        objectRemovedObservers.add(map);
     }
 
     @Override
@@ -28,9 +26,21 @@ public class Plant implements IMapElement {
         return this.position;
     }
 
-    public String toString()
+    public Color getPlantColor()
     {
-        return "+" + this.energy;
+        return plantColor;
     }
 
+    public void notifyPlantEaten()
+    {
+        for (IMapElementRemovedObserver observer: objectRemovedObservers)
+        {
+            observer.mapElementRemoved(this);
+        }
+    }
+
+    @Override
+    public Color toColor() {
+        return Plant.plantColor;
+    }
 }

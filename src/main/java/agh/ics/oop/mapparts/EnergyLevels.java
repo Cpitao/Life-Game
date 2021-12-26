@@ -18,11 +18,11 @@ public enum EnergyLevels {
     {
         return switch(this)
         {
-            case VERY_GOOD -> Color.rgb(0, 0, 255);
-            case GOOD -> Color.rgb(200, 36, 237);
-            case LITTLE -> Color.rgb(135, 62, 199);
-            case VERY_LITTLE -> Color.rgb(237, 36, 106);
-            case CRITICAL -> Color.rgb(153, 0, 0);
+            case VERY_GOOD -> Color.rgb(50, 3, 252);
+            case GOOD -> Color.rgb(92, 59, 235);
+            case LITTLE -> Color.rgb(143, 120, 245);
+            case VERY_LITTLE -> Color.rgb(182, 168, 247);
+            case CRITICAL -> Color.rgb(211, 203, 245);
         };
     }
 }

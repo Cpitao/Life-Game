@@ -3,12 +3,19 @@ package agh.ics.oop;
 import agh.ics.oop.mapparts.Animal;
 import agh.ics.oop.maps.AbstractMap;
 import javafx.geometry.HPos;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+
+import java.util.ConcurrentModificationException;
+import java.util.HashSet;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 public class MapVisualizer {
 
@@ -23,7 +30,6 @@ public class MapVisualizer {
         this.cellWidth = container.getColumnConstraints().get(0).getPrefWidth() / (map.getWidth() + 1);
         this.cellHeight = container.getRowConstraints().get(0).getPrefHeight() / (map.getHeight() + 1);
         gridPane = generateMapGrid();
-        gridPane.setGridLinesVisible(true);
     }
 
     public GridPane generateMapGrid()
@@ -32,49 +38,55 @@ public class MapVisualizer {
 
         for (int i=0; i < map.getWidth() + 1; i++)
         {
-            grid.getColumnConstraints().add(new ColumnConstraints(cellWidth));
+            ColumnConstraints columnConstraints = new ColumnConstraints();
+            columnConstraints.setPercentWidth(100.0/map.getWidth());
+            columnConstraints.setMinWidth(0);
+            columnConstraints.setMaxWidth(cellWidth);
+            grid.getColumnConstraints().add(columnConstraints);
         }
         for (int i=0; i < map.getHeight() + 1; i++)
         {
-            grid.getRowConstraints().add(new RowConstraints(cellHeight));
+            RowConstraints rowConstraints = new RowConstraints();
+            rowConstraints.setPercentHeight(100.0/map.getHeight());
+            rowConstraints.setMinHeight(0);
+            rowConstraints.setMaxHeight(cellHeight);
+            grid.getRowConstraints().add(rowConstraints);
         }
-
         for (int i=1; i < map.getWidth() + 1; i++)
         {
-            Label newLabel = new Label(Integer.toString(i));
+            Label newLabel = new Label(Integer.toString(i-1));
+            newLabel.setFont(new Font(10));
+            grid.add(newLabel, i, 0);
+            GridPane.setFillWidth(newLabel, true);
             GridPane.setHalignment(newLabel, HPos.CENTER);
-            grid.add(new Label(Integer.toString(i-1)), 0, i, 1, 1);
         }
 
         for (int i=1; i < map.getHeight() + 1; i++)
         {
-            Label newLabel = new Label(Integer.toString(i));
+            Label newLabel = new Label(Integer.toString(i-1));
+            newLabel.setFont(new Font(10));
+            GridPane.setFillWidth(newLabel, true);
             GridPane.setHalignment(newLabel, HPos.CENTER);
-            grid.add(new Label(Integer.toString(i-1)), i, 0, 1, 1);
+            grid.add(newLabel, 0, map.getHeight() - i + 1);
         }
-        grid.setGridLinesVisible(true);
 
         return grid;
     }
 
     public void drawMapElements()
     {
-        for (Vector2d position: map.getAnimals().keySet())
-        {
-            Animal animal = map.getAnimals().get(position).last();
-            Rectangle newRectangle = new Rectangle(cellWidth, cellHeight);
-            newRectangle.setFill(animal.getEnergyLevel().toColor());
-            this.gridPane.add(newRectangle, position.x + 1, position.y + 1, 1, 1);
+        Set<Vector2d> nonEmptyPositions = new HashSet<>();
+        try { // exception may occur if delay is too short, can be ignored
+            nonEmptyPositions.addAll(map.getAnimals().keySet());
+            nonEmptyPositions.addAll(map.getPlants().keySet());
         }
-
-        for (Vector2d position: map.getPlants().keySet())
+        catch (ConcurrentModificationException e) {}
+        for (Vector2d position: nonEmptyPositions)
         {
-            if (map.getAnimals().get(position) == null)
-            {
-                Plant plant = map.getPlants().get(position);
-                GuiPlantBox plantBox = new GuiPlantBox(plant);
-                this.gridPane.add(plantBox.getVbox(), position.x, position.y, 1, 1);
-            }
+            Rectangle objectRectangle = new Rectangle(cellWidth, cellHeight);
+            objectRectangle.setFill(map.objectAt(position).toColor());
+            this.gridPane.add(objectRectangle, position.x + 1,
+                    map.getHeight() - position.y, 1, 1);
         }
     }
 

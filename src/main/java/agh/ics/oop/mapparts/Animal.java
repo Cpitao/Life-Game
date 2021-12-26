@@ -1,10 +1,11 @@
 package agh.ics.oop.mapparts;
 
-import agh.ics.oop.IAnimalDeathObserver;
+import agh.ics.oop.IMapElementRemovedObserver;
 import agh.ics.oop.IPositionChangeObserver;
-import agh.ics.oop.maps.IWorldMap;
+import agh.ics.oop.maps.AbstractMap;
 import agh.ics.oop.Plant;
 import agh.ics.oop.Vector2d;
+import javafx.scene.paint.Color;
 
 import java.util.LinkedList;
 import java.util.Random;
@@ -16,22 +17,36 @@ public class Animal implements IMapElement {
     private Vector2d position;
     private MapDirection direction;
     private LinkedList<IPositionChangeObserver> positionChangeObservers = new LinkedList<>();
-    private LinkedList<IAnimalDeathObserver> deathObservers = new LinkedList<>();
-    private final IWorldMap map;
+    private LinkedList<IMapElementRemovedObserver> objectRemovedObservers = new LinkedList<>();
+    private final AbstractMap map;
 
-    public Animal(IWorldMap map)
+    public Animal(AbstractMap map)
     {
         this.genes = new Genes();
         this.energy = map.getAnimalsInitialEnergy();
+        this.direction = MapDirection.values()[new Random().nextInt(8)];
 
-        Random random = new Random();
-        Vector2d newPosition = map.getRandomFreeCell();
-        this.position = newPosition;
+        this.position = map.getRandomFreeCell();
+
         this.map = map;
         this.addPositionChangeObserver(map);
+        this.addDeathObserver(map);
     }
 
-    public Animal(IWorldMap map, Vector2d position)
+    public Animal(AbstractMap map, Genes genes)
+    {
+        this.genes = genes;
+        this.energy = map.getAnimalsInitialEnergy();
+        this.direction = MapDirection.values()[new Random().nextInt(8)];
+
+        this.position = map.getRandomFreeCell();
+
+        this.map = map;
+        this.addPositionChangeObserver(map);
+        this.addDeathObserver(map);
+    }
+
+    public Animal(AbstractMap map, Vector2d position)
     {
         this(map);
         this.position = position;
@@ -39,17 +54,18 @@ public class Animal implements IMapElement {
 
     public Animal(Animal parent1, Animal parent2)
     {
-        if (parent1.getPosition() != parent2.getPosition())
+        if (!parent1.getPosition().equals(parent2.getPosition()))
             throw new RuntimeException("Illegal animal reproduction encountered");
 
-        parent1.loseEnergy(parent1.getEnergy() / 4);
-        parent2.loseEnergy(parent2.getEnergy() / 4);
-
         this.position = parent1.getPosition();
+        this.direction = MapDirection.values()[new Random().nextInt(8)];
         this.genes = new Genes(parent1, parent2);
         this.energy = parent1.getEnergy() / 4  + parent2.getEnergy() / 4;
+        parent1.loseEnergy(parent1.getEnergy() / 4);
+        parent2.loseEnergy(parent2.getEnergy() / 4);
         this.map = parent1.map;
         this.addPositionChangeObserver(parent1.map);
+        this.addDeathObserver(parent1.map);
     }
 
     public void addPositionChangeObserver(IPositionChangeObserver observer)
@@ -62,15 +78,16 @@ public class Animal implements IMapElement {
         this.positionChangeObservers.remove(observer);
     }
 
-    public void addDeathObserver(IAnimalDeathObserver deathObserver)
+    public void addDeathObserver(IMapElementRemovedObserver deathObserver)
     {
-        this.deathObservers.add(deathObserver);
+        this.objectRemovedObservers.add(deathObserver);
     }
 
-    public void removeDeathObserver(IAnimalDeathObserver deathObserver)
+    public void removeDeathObserver(IMapElementRemovedObserver deathObserver)
     {
-        this.deathObservers.remove(deathObserver);
+        this.objectRemovedObservers.remove(deathObserver);
     }
+
     public int getEnergy()
     {
         return this.energy;
@@ -94,14 +111,13 @@ public class Animal implements IMapElement {
     private MoveDirection generateRandomMove()
     {
         Random random = new Random();
-        int randomGene = random.nextInt(32) + 1;
+        int randomGene = random.nextInt(32);
         int i=0;
-        while (randomGene > 0)
+        while (randomGene > 0 && i < 7)
         {
             randomGene -= this.genes.getGeneTypeCounts()[i];
             i += 1;
         }
-
         return MoveDirection.values[i];
     }
 
@@ -129,18 +145,20 @@ public class Animal implements IMapElement {
                     this.direction = this.direction.next();
             }
         }
+
+        loseEnergy(map.getMoveCost());
     }
 
     public void eat(Plant plant, int sharedWith)
     {
-        this.energy += plant.getEnergy() / sharedWith;
+        this.energy += map.getPlantsEnergy() / sharedWith;
     }
 
     public void die()
     {
         this.map.getAnimals().get(this.position).remove(this);
-        for (IAnimalDeathObserver deathObserver: this.deathObservers)
-            deathObserver.animalDied(this);
+        for (IMapElementRemovedObserver deathObserver: this.objectRemovedObservers)
+            deathObserver.mapElementRemoved(this);
     }
 
     public void loseEnergy(int lostEnergy)
@@ -163,6 +181,11 @@ public class Animal implements IMapElement {
             return EnergyLevels.GOOD;
         else
             return EnergyLevels.VERY_GOOD;
+    }
+
+    @Override
+    public Color toColor() {
+        return this.getEnergyLevel().toColor();
     }
 
     public String toString()

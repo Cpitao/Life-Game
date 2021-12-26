@@ -1,11 +1,10 @@
 package agh.ics.oop.maps;
 
 import agh.ics.oop.Vector2d;
-import agh.ics.oop.mapparts.IMapElement;
 
-public class HardBoundMap extends AbstractMap{
+public class HardBoundMagicMap extends AbstractMap {
 
-    public HardBoundMap(int width, int height, int animalsInitialEnergy,
+    public HardBoundMagicMap(int width, int height, int animalsInitialEnergy,
                         int plantsEnergy, double jungleRatio, int moveCost) {
         super(width, height, animalsInitialEnergy, plantsEnergy, jungleRatio, moveCost);
     }
@@ -26,5 +25,4 @@ public class HardBoundMap extends AbstractMap{
 
         return position;
     }
-
 }

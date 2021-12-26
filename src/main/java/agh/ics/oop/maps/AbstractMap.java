@@ -1,88 +1,89 @@
 package agh.ics.oop.maps;
 
-import agh.ics.oop.IAnimalDeathObserver;
-import agh.ics.oop.IPositionChangeObserver;
-import agh.ics.oop.Plant;
-import agh.ics.oop.Vector2d;
+import agh.ics.oop.*;
+import agh.ics.oop.StatTrackers.MapStatsTracker;
 import agh.ics.oop.mapparts.Animal;
-import agh.ics.oop.mapparts.EnergyLevels;
 import agh.ics.oop.mapparts.IMapElement;
 
 import java.util.*;
 
-public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver, IAnimalDeathObserver {
+public abstract class AbstractMap implements IPositionChangeObserver, IMapElementRemovedObserver {
 
     // map parameters
     protected int width;
     protected int height;
     // user input
-    protected int jungleRatio;
+    protected double jungleRatio;
     protected int animalsInitialEnergy;
     protected int plantsEnergy;
+    protected int moveCost;
 
     protected Vector2d jungleLowerLeftCorner;
     protected Vector2d jungleUpperRightCorner;
+
     // objects on the map
-    protected HashMap<Vector2d, SortedSet<Animal>> animals = new HashMap<>();
+    protected HashMap<Vector2d, LinkedList<Animal>> animals = new HashMap<>();
     protected HashMap<Vector2d, Plant> plants = new HashMap<>();
     // free cells
     protected LinkedList<Vector2d> freeJungleCells = new LinkedList<>();
     protected LinkedList<Vector2d> freeSavannahCells = new LinkedList<>();
 
-    private static final Comparator<Animal> animalComparator = Comparator.comparingInt(Animal::getEnergy);
+    protected MapStatsTracker mapStatsTracker = new MapStatsTracker();
 
-    public AbstractMap(int width, int height, int animalsInitialEnergy, int plantsEnergy, double jungleRatio)
+    public AbstractMap(int width, int height, int animalsInitialEnergy,
+                       int plantsEnergy, double jungleRatio, int moveCost)
     {
+
         this.width = width;
         this.height = height;
+        this.jungleRatio = jungleRatio;
+        this.moveCost = moveCost;
 
-        this.jungleLowerLeftCorner = new Vector2d((int) jungleRatio * (1 - width) / 2,
-                (int) jungleRatio * (1 - height) / 2);
-        System.out.println(10);
         this.animalsInitialEnergy = animalsInitialEnergy;
         this.plantsEnergy = plantsEnergy;
+
+        setJungleBounds(width, height, jungleRatio);
+        initializeFreeCells();
+
+//        for (int i=0; i < animalsCount; i++)
+//        {
+//            this.placeAnimal(new Animal(this));
+//        }
+    }
+
+    public void setJungleBounds(int width, int height, double jungleRatio)
+    {
+        this.jungleLowerLeftCorner = new Vector2d((int) (width * (1 - jungleRatio) / 2),
+                (int) (height * (1 - jungleRatio) / 2));
+        this.jungleUpperRightCorner = new Vector2d((int) (width * (1 + jungleRatio) / 2) - 1,
+                (int) (height * (1 + jungleRatio) / 2) - 1);
+    }
+
+    public void initializeFreeCells()
+    {
         for (int i=0; i < width; i++)
             for (int j=0; j < height; j++) {
-                addFreePosition(new Vector2d(i, j));
+                this.addFreePosition(new Vector2d(i, j));
             }
     }
 
-    public void place(Animal animal)
+    public void placeAnimal(Animal animal)
     {
-        this.animals.computeIfAbsent(animal.getPosition(), k -> new TreeSet<>(animalComparator));
+        this.animals.computeIfAbsent(animal.getPosition(), k -> new LinkedList<>());
         this.animals.get(animal.getPosition()).add(animal);
-        this.freeJungleCells.remove(animal.getPosition());
+        this.removeFreePosition(animal.getPosition());
+
+        mapStatsTracker.newAnimal(animal);
     }
 
-    public void generatePlants()
+    public void placePlant(Plant plant)
     {
-        Random random = new Random();
-        // generate plant inside the jungle
-        Vector2d newPosition = new Vector2d(
-                width / 2 - width * jungleRatio / 2 + random.nextInt(width * jungleRatio),
-                height / 2 - height * jungleRatio / 2 + random.nextInt(height * jungleRatio));
+        this.plants.put(plant.getPosition(), plant);
+        this.removeFreePosition(plant.getPosition());
 
-        while (this.plants.containsKey(newPosition))
-            newPosition = new Vector2d(
-                    width / 2 - width * jungleRatio / 2 + random.nextInt(width * jungleRatio),
-                    height / 2 - height * jungleRatio / 2 + random.nextInt(height * jungleRatio));
-
-        this.plants.put(newPosition, new Plant(this, newPosition, plantsEnergy));
-
-        // generate plant outside the jungle
-        newPosition = new Vector2d(
-                random.nextInt(width / 2 - width * jungleRatio) + random.nextInt(2)*width*jungleRatio,
-                random.nextInt(height / 2 - height * jungleRatio) + random.nextInt(2)*height*jungleRatio
-        );
-        while (this.plants.containsKey(newPosition))
-            newPosition = new Vector2d(
-                    random.nextInt(width / 2 - width * jungleRatio) + random.nextInt(2)*width*jungleRatio,
-                    random.nextInt(height / 2 - height * jungleRatio) + random.nextInt(2)*height*jungleRatio
-            );
-
-        this.plants.put(newPosition, new Plant(this, newPosition, plantsEnergy));
+        mapStatsTracker.newPlant();
     }
-    
+
     public int getHeight() {
         return height;
     }
@@ -97,39 +98,50 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver,
         if (this.animals.get(oldPosition).size() == 0)
         {
             this.animals.remove(oldPosition);
-            this.freeJungleCells.add(oldPosition);
+            addFreePosition(oldPosition);
         }
-        this.animals.computeIfAbsent(newPosition, k -> new TreeSet<>(animalComparator));
-        this.animals.get(newPosition).add(animal);
+
+        this.animals.computeIfAbsent(animal.getPosition(), k -> new LinkedList<>());
+        this.animals.get(animal.getPosition()).add(animal);
+        this.removeFreePosition(animal.getPosition());
     }
 
     @Override
-    public void animalDied(Animal animal) {
-        this.animals.get(animal.getPosition()).remove(animal);
-        if (this.animals.get(animal.getPosition()).size() == 0)
+    public void mapElementRemoved(IMapElement element) {
+        if (element instanceof Animal) {
+            this.animals.get(element.getPosition()).remove(element);
+
+            if (this.animals.get(element.getPosition()).size() == 0)
+            {
+                this.animals.remove(element.getPosition());
+                addFreePosition(element.getPosition());
+            }
+
+            mapStatsTracker.animalDied((Animal) element);
+        }
+        else if (element instanceof Plant)
         {
-            this.animals.remove(animal.getPosition());
-            this.freeJungleCells.add(animal.getPosition());
+            this.plants.remove(element.getPosition());
+
+            mapStatsTracker.plantEaten();
         }
     }
 
-    @Override
-    public HashMap<Vector2d, SortedSet<Animal>> getAnimals() {
+    public HashMap<Vector2d, LinkedList<Animal>> getAnimals() {
         return animals;
     }
 
-    @Override
     public HashMap<Vector2d, Plant> getPlants()
     {
         return plants;
     }
 
-    @Override
     public IMapElement objectAt(Vector2d position)
     {
         if (this.animals.get(position) != null)
-            return this.animals.get(position).last();
-
+        {
+            return getHighestEnergyAnimalAtPosition(position);
+        }
         if (this.plants.get(position) != null)
             return this.plants.get(position);
 
@@ -143,8 +155,27 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver,
 
     public Vector2d getRandomFreeCell()
     {
+        int randomPositionNumber = new Random().nextInt(freeJungleCells.size() + freeSavannahCells.size());
+        if (randomPositionNumber < freeJungleCells.size())
+            return freeJungleCells.get(randomPositionNumber);
+        else
+            return freeSavannahCells.get(randomPositionNumber - freeJungleCells.size());
+    }
+
+    public Vector2d getRandomJungleCell()
+    {
+        if (freeJungleCells.size() == 0)
+            return null;
         int randomPositionNumber = new Random().nextInt(freeJungleCells.size());
-        return freeJungleCells.get(randomPositionNumber);
+        return this.freeJungleCells.get(randomPositionNumber);
+    }
+
+    public Vector2d getRandomSavannahCell()
+    {
+        if (freeSavannahCells.size() == 0)
+            return null;
+        int randomPositionNumber = new Random().nextInt(freeSavannahCells.size());
+        return this.freeSavannahCells.get(randomPositionNumber);
     }
 
     private boolean isPositionInJungle(Vector2d position)
@@ -162,14 +193,43 @@ public abstract class AbstractMap implements IWorldMap, IPositionChangeObserver,
 
     private void addFreePosition(Vector2d position)
     {
-
         if (isPositionInJungle(position))
+        {
             if (!this.freeJungleCells.contains(position))
                 this.freeJungleCells.add(position);
+        }
         else
+        {
             if (!this.freeSavannahCells.contains(position))
                 this.freeSavannahCells.add(position);
+        }
+    }
+
+    public int getMoveCost()
+    {
+        return this.moveCost;
+    }
+
+    public int getPlantsEnergy() {
+        return plantsEnergy;
+    }
+
+    public Animal getHighestEnergyAnimalAtPosition(Vector2d position)
+    {
+        Animal strongestAnimal = this.animals.get(position).get(0);
+        for (Animal animal: this.animals.get(position))
+        {
+            if (animal.getEnergy() > strongestAnimal.getEnergy())
+            {
+                strongestAnimal = animal;
+            }
+        }
+
+        return strongestAnimal;
     }
     public abstract Vector2d correctPosition(Vector2d position);
 
+    public MapStatsTracker getMapStatisticsTracker() {
+        return mapStatsTracker;
+    }
 }

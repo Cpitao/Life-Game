@@ -3,8 +3,8 @@ package agh.ics.oop;
 import java.util.Objects;
 
 public class Vector2d {
-    public final int x;
-    public final int y;
+    public int x;
+    public int y;
 
     public Vector2d(int x, int y)
     {
@@ -55,12 +55,14 @@ public class Vector2d {
         return new Vector2d(this.x - other.x, this.y - other.y);
     }
 
-    public boolean equals(Object other)
+    @Override
+    public boolean equals(Object o)
     {
-        if (this == other) return true;
-        if (!(other instanceof Vector2d)) return false;
-        Vector2d that = (Vector2d) other;
-        return (that.x == this.x && that.y == this.y);
+        if (this == o) return true;
+        if (!(o instanceof Vector2d)) return false;
+        Vector2d that = (Vector2d) o;
+        return (Integer.compare(this.x, that.x) == 0
+                && Integer.compare(this.y, that.y) == 0);
     }
 
     public Vector2d opposite()
