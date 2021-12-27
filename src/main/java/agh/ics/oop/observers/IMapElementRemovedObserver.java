@@ -1,4 +1,4 @@
-package agh.ics.oop;
+package agh.ics.oop.observers;
 
 import agh.ics.oop.mapparts.Animal;
 import agh.ics.oop.mapparts.IMapElement;

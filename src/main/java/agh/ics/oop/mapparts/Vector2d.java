@@ -1,4 +1,4 @@
-package agh.ics.oop;
+package agh.ics.oop.mapparts;
 
 import java.util.Objects;
 

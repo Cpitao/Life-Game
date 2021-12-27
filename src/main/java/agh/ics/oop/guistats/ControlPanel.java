@@ -1,21 +1,15 @@
-package agh.ics.oop.GuiStats;
+package agh.ics.oop.guistats;
 
 import agh.ics.oop.App;
 import agh.ics.oop.SimulationEngine;
-import agh.ics.oop.mapparts.Genes;
-import agh.ics.oop.maps.AbstractMap;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
-
-import java.util.LinkedList;
 
 public class ControlPanel {
 

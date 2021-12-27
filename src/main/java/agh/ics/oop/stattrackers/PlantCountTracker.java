@@ -1,8 +1,8 @@
-package agh.ics.oop.StatTrackers;
+package agh.ics.oop.stattrackers;
 
-import agh.ics.oop.INewEraObserver;
-import agh.ics.oop.INewPlantObserver;
-import agh.ics.oop.IPlantEatenObserver;
+import agh.ics.oop.observers.INewEraObserver;
+import agh.ics.oop.observers.INewPlantObserver;
+import agh.ics.oop.observers.IPlantEatenObserver;
 
 public class PlantCountTracker extends CountTracker implements INewPlantObserver, IPlantEatenObserver, INewEraObserver {
 
@@ -11,12 +11,12 @@ public class PlantCountTracker extends CountTracker implements INewPlantObserver
 
     @Override
     public void plantEaten() {
-        currentPopulation--;
+        currentData--;
     }
 
     @Override
     public void newPlant() {
-        currentPopulation++;
+        currentData++;
     }
 
 }

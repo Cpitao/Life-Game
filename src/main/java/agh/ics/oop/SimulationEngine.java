@@ -1,7 +1,11 @@
 package agh.ics.oop;
 
 import agh.ics.oop.mapparts.Animal;
+import agh.ics.oop.mapparts.Plant;
+import agh.ics.oop.mapparts.Vector2d;
 import agh.ics.oop.maps.AbstractMap;
+import agh.ics.oop.observers.IEngine;
+import agh.ics.oop.observers.IMapChangeObserver;
 
 import java.util.LinkedList;
 
@@ -32,13 +36,13 @@ public class SimulationEngine implements IEngine, Runnable{
                     }
                 }
             }
-
             removeDeadAnimals();
             moveAllAnimals();
             eatAll();
             reproduceAll();
             generatePlants();
             notifyMapChanged();
+            map.newEra();
             map.getMapStatisticsTracker().newEra();
 
             try {
@@ -56,7 +60,7 @@ public class SimulationEngine implements IEngine, Runnable{
         {
             for (Animal animal: map.getAnimals().get(position))
             {
-                if (animal.getEnergy() < 0)
+                if (animal.getEnergy() <= 0)
                     deadAnimals.add(animal);
             }
         }
@@ -65,6 +69,7 @@ public class SimulationEngine implements IEngine, Runnable{
             animal.die();
         }
     }
+
     private void moveAllAnimals()
     {
         Vector2d[] positions = this.map.getAnimals().keySet().toArray(new Vector2d[0]);

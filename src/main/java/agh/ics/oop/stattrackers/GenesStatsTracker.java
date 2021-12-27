@@ -1,13 +1,10 @@
-package agh.ics.oop.StatTrackers;
+package agh.ics.oop.stattrackers;
 
-import agh.ics.oop.IAnimalDeathObserver;
-import agh.ics.oop.INewAnimalObserver;
-import agh.ics.oop.INewEraObserver;
+import agh.ics.oop.observers.IAnimalDeathObserver;
+import agh.ics.oop.observers.INewAnimalObserver;
 import agh.ics.oop.mapparts.Animal;
 import agh.ics.oop.mapparts.Genes;
-import agh.ics.oop.mapparts.IMapElement;
 
-import java.util.Comparator;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.LinkedList;

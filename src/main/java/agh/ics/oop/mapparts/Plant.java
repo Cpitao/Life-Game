@@ -1,7 +1,7 @@
-package agh.ics.oop;
+package agh.ics.oop.mapparts;
 
-import agh.ics.oop.mapparts.IMapElement;
 import agh.ics.oop.maps.AbstractMap;
+import agh.ics.oop.observers.IMapElementRemovedObserver;
 import javafx.scene.paint.Color;
 
 import java.util.LinkedList;

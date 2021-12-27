@@ -1,18 +1,30 @@
 package agh.ics.oop;
 
-import agh.ics.oop.GuiStats.ControlPanel;
-import agh.ics.oop.GuiStats.StatsPanel;
+import agh.ics.oop.guistats.ControlPanel;
+import agh.ics.oop.guistats.StatsPanel;
 import agh.ics.oop.mapparts.Animal;
+import agh.ics.oop.mapparts.Genes;
+import agh.ics.oop.mapparts.Vector2d;
 import agh.ics.oop.maps.AbstractMap;
+import agh.ics.oop.observers.IMapChangeObserver;
+import agh.ics.oop.stattrackers.MapStatsTracker;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.*;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
-public class App extends Application implements IMapChangeObserver{
+import java.io.File;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.Map;
+
+public class App extends Application implements IMapChangeObserver {
 
     private double windowWidth;
     private double windowHeight;
@@ -67,7 +79,7 @@ public class App extends Application implements IMapChangeObserver{
         if (map == leftMap) {
             Platform.runLater(() ->
             {
-                MapVisualizer mapVisualizer = new MapVisualizer(map, leftMapContainer);
+                MapVisualizer mapVisualizer = new MapVisualizer(leftEngine, map, leftMapContainer, statsPanel);
                 mapVisualizer.drawMapElements();
                 leftMapGrid = mapVisualizer.getGridPane();
                 leftMapContainer.getChildren().clear();
@@ -79,7 +91,7 @@ public class App extends Application implements IMapChangeObserver{
         else if (map == rightMap){
             Platform.runLater(() ->
             {
-                MapVisualizer mapVisualizer = new MapVisualizer(map, rightMapContainer);
+                MapVisualizer mapVisualizer = new MapVisualizer(rightEngine, map, rightMapContainer, statsPanel);
                 mapVisualizer.drawMapElements();
                 rightMapGrid = mapVisualizer.getGridPane();
                 rightMapContainer.getChildren().clear();
@@ -107,7 +119,7 @@ public class App extends Application implements IMapChangeObserver{
         leftMapContainer.setMaxWidth(windowWidth / 3);
         leftMapContainer.getRowConstraints().add(new RowConstraints(windowHeight - 20));
         leftMapContainer.getColumnConstraints().add(new ColumnConstraints(windowWidth / 3));
-        MapVisualizer leftMapVisualizer = new MapVisualizer(leftMap, leftMapContainer);
+        MapVisualizer leftMapVisualizer = new MapVisualizer(leftEngine, leftMap, leftMapContainer, statsPanel);
         leftMapVisualizer.drawMapElements();
         leftMapGrid = leftMapVisualizer.getGridPane();
         GridPane.setFillWidth(leftMapGrid, true);
@@ -117,7 +129,7 @@ public class App extends Application implements IMapChangeObserver{
         rightMapContainer.setPrefWidth(windowWidth / 3);
         rightMapContainer.getRowConstraints().add(new RowConstraints(windowHeight - 20));
         rightMapContainer.getColumnConstraints().add(new ColumnConstraints(windowWidth / 3));
-        MapVisualizer rightMapVisualizer = new MapVisualizer(rightMap, rightMapContainer);
+        MapVisualizer rightMapVisualizer = new MapVisualizer(rightEngine, rightMap, rightMapContainer, statsPanel);
         rightMapVisualizer.drawMapElements();
         rightMapGrid = rightMapVisualizer.getGridPane();
         GridPane.setFillWidth(rightMapGrid, true);
@@ -137,7 +149,10 @@ public class App extends Application implements IMapChangeObserver{
                 leftMap.getMapStatisticsTracker(), rightMap.getMapStatisticsTracker(), controlPanelWidth);
         controlPanelGrid = controlPanel.getLayoutGrid();
         statsPanelGrid = statsPanel.getStatsGrid();
-        middlePanel.getChildren().addAll(controlPanelGrid, statsPanelGrid);
+
+        HBox saveButtons = getSaveButtons();
+
+        middlePanel.getChildren().addAll(controlPanelGrid, statsPanelGrid, saveButtons);
 
         container.getChildren().addAll(leftMapContainer, middlePanel, rightMapContainer);
 
@@ -156,6 +171,75 @@ public class App extends Application implements IMapChangeObserver{
         rightEngineThread.start();
     }
 
+    public HBox getSaveButtons()
+    {
+        GridPane gridPane = new GridPane();
+        Button leftSave = new Button("Save map info");
+        leftSave.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                DirectoryChooser directoryChooser = new DirectoryChooser();
+                File selectedDirectory = directoryChooser.showDialog(primaryStage);
+                try {
+                    leftMap.getMapStatisticsTracker().saveToCSV(selectedDirectory.getAbsolutePath());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        Button rightSave = new Button("Save map info");
+        rightSave.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                DirectoryChooser directoryChooser = new DirectoryChooser();
+                File selectedDirectory = directoryChooser.showDialog(primaryStage);
+                try {
+                    rightMap.getMapStatisticsTracker().saveToCSV(selectedDirectory.getAbsolutePath());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        gridPane.getColumnConstraints().add(new ColumnConstraints(controlPanelWidth / 2));
+        gridPane.getColumnConstraints().add(new ColumnConstraints(controlPanelWidth / 2));
+
+        gridPane.add(leftSave, 0, 0);
+        gridPane.add(rightSave, 1, 0);
+
+        HBox buttonsContainer = new HBox();
+        buttonsContainer.getChildren().add(gridPane);
+        return buttonsContainer;
+    }
+    public void showModeGeneAnimals(SimulationEngine engine, GridPane mapGrid)
+    {
+        Platform.runLater(() ->
+        {
+            Genes mode = engine.getMap().getMapStatisticsTracker().getGenesStatsTracker().getGenesMode().get(0);
+            LinkedList<Vector2d> positions = new LinkedList<>();
+            for (LinkedList<Animal> animals: engine.getMap().getAnimals().values())
+            {
+                for (Animal animal: animals)
+                {
+                    if (animal.getGenes().equals(mode))
+                        positions.add(animal.getPosition());
+                }
+            }
+            GridPane newMapGrid = new MapVisualizer(engine, engine.getMap(),
+                    leftMapContainer, statsPanel).getHighlightedGrid(mapGrid, positions);
+            if (engine.equals(leftEngine)) {
+                leftMapContainer.getChildren().clear();
+                leftMapContainer.getChildren().add(newMapGrid);
+            }
+            else
+            {
+                rightMapContainer.getChildren().clear();
+                rightMapContainer.getChildren().add(newMapGrid);
+            }
+        });
+
+    }
+
     public SimulationEngine getLeftEngine() {
         return leftEngine;
     }
@@ -167,5 +251,15 @@ public class App extends Application implements IMapChangeObserver{
     public double getWindowHeight()
     {
         return windowHeight;
+    }
+
+    public GridPane getLeftMapGrid()
+    {
+        return leftMapGrid;
+    }
+
+    public GridPane getRightMapGrid()
+    {
+        return rightMapGrid;
     }
 }

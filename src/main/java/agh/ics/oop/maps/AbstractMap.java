@@ -1,22 +1,30 @@
 package agh.ics.oop.maps;
 
-import agh.ics.oop.*;
-import agh.ics.oop.StatTrackers.MapStatsTracker;
+import agh.ics.oop.UserSetAnimalTracker;
+import agh.ics.oop.mapparts.Plant;
+import agh.ics.oop.mapparts.Vector2d;
+import agh.ics.oop.observers.IMapElementRemovedObserver;
+import agh.ics.oop.observers.INewEraObserver;
+import agh.ics.oop.observers.IPositionChangeObserver;
+import agh.ics.oop.stattrackers.MapStatsTracker;
 import agh.ics.oop.mapparts.Animal;
 import agh.ics.oop.mapparts.IMapElement;
 
 import java.util.*;
 
-public abstract class AbstractMap implements IPositionChangeObserver, IMapElementRemovedObserver {
+public abstract class AbstractMap implements IPositionChangeObserver, IMapElementRemovedObserver, INewEraObserver {
 
     // map parameters
     protected int width;
     protected int height;
+    protected UserSetAnimalTracker userSetAnimalTracker = null;
     // user input
     protected double jungleRatio;
     protected int animalsInitialEnergy;
     protected int plantsEnergy;
     protected int moveCost;
+
+    protected int era = 0;
 
     protected Vector2d jungleLowerLeftCorner;
     protected Vector2d jungleUpperRightCorner;
@@ -226,5 +234,33 @@ public abstract class AbstractMap implements IPositionChangeObserver, IMapElemen
 
     public MapStatsTracker getMapStatisticsTracker() {
         return mapStatsTracker;
+    }
+
+    public void newEra()
+    {
+        era++;
+    }
+
+    public int getEra()
+    {
+        return era;
+    }
+
+    public void setUserSetAnimalTracker(Animal animal)
+    {
+        this.userSetAnimalTracker = new UserSetAnimalTracker(animal);
+    }
+
+    public void unsetUserSetAnimalTracker()
+    {
+        if (this.userSetAnimalTracker != null) {
+            this.userSetAnimalTracker.unsetTracker();
+            this.userSetAnimalTracker = null;
+        }
+    }
+
+    public UserSetAnimalTracker getUserSetAnimalTracker()
+    {
+        return userSetAnimalTracker;
     }
 }

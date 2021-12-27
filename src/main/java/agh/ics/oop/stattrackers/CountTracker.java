@@ -1,6 +1,6 @@
-package agh.ics.oop.StatTrackers;
+package agh.ics.oop.stattrackers;
 
-import agh.ics.oop.INewEraObserver;
+import agh.ics.oop.observers.INewEraObserver;
 import javafx.scene.chart.XYChart;
 
 import java.util.ConcurrentModificationException;
@@ -8,8 +8,10 @@ import java.util.LinkedList;
 
 public abstract class CountTracker implements INewEraObserver {
 
-    protected LinkedList<Number> historicalPopulation = new LinkedList<>();
-    protected int currentPopulation = 0;
+
+
+    protected LinkedList<Number> historicalData = new LinkedList<>();
+    protected int currentData = 0;
     protected int currentEra = 0;
 
     public CountTracker(){}
@@ -18,10 +20,10 @@ public abstract class CountTracker implements INewEraObserver {
     {
         XYChart.Series<Number, Number> series = new XYChart.Series<>();
         int i=0;
-        if (currentEra > 100)
-            i = currentEra - 100;
+        if (currentEra > 2000)
+            i = currentEra - 2000;
         try {
-            for (Number number : historicalPopulation) {
+            for (Number number : historicalData) {
                 series.getData().add(new XYChart.Data<>(i, number));
                 i++;
             }
@@ -33,14 +35,18 @@ public abstract class CountTracker implements INewEraObserver {
 
     public XYChart.Data<Number, Number> getLastPoint()
     {
-        return new XYChart.Data<Number, Number>(currentEra, historicalPopulation.getLast());
+        return new XYChart.Data<Number, Number>(currentEra, historicalData.getLast());
     }
 
     @Override
     public void newEra() {
-        historicalPopulation.add(currentPopulation);
+        historicalData.add(currentData);
         currentEra++;
-        if (historicalPopulation.size() > 100)
-            historicalPopulation.remove(0);
+        if (historicalData.size() > 100)
+            historicalData.remove(0);
+    }
+
+    public LinkedList<Number> getHistoricalData() {
+        return historicalData;
     }
 }

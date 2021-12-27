@@ -1,14 +1,14 @@
-package agh.ics.oop.GuiStats;
+package agh.ics.oop.guistats;
 
 import agh.ics.oop.App;
-import agh.ics.oop.StatTrackers.AnimalCountTracker;
+import agh.ics.oop.stattrackers.AnimalStatsTracker;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 
 public class AnimalCountDisplay extends AbstractCountDisplay {
 
     public AnimalCountDisplay(App app, double controlPanelWidth,
-                              AnimalCountTracker leftCountTracker, AnimalCountTracker rightCountTracker) {
+                              AnimalStatsTracker leftCountTracker, AnimalStatsTracker rightCountTracker) {
         super(app, controlPanelWidth, leftCountTracker, rightCountTracker);
     }
 
@@ -31,9 +31,4 @@ public class AnimalCountDisplay extends AbstractCountDisplay {
         lineChart.setAnimated(false);
     }
 
-    @Override
-    public void updateGUI()
-    {
-        super.updateGUI();
-    }
 }

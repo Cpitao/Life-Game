@@ -1,7 +1,7 @@
-package agh.ics.oop.GuiStats;
+package agh.ics.oop.guistats;
 
 import agh.ics.oop.App;
-import agh.ics.oop.StatTrackers.CountTracker;
+import agh.ics.oop.stattrackers.CountTracker;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 

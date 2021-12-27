@@ -1,7 +1,5 @@
 package agh.ics.oop.mapparts;
 
-import agh.ics.oop.Vector2d;
-
 public enum MapDirection {
     NORTH,
     NORTH_EAST,

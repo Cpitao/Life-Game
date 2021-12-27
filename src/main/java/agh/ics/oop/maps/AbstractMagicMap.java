@@ -1,9 +1,11 @@
 package agh.ics.oop.maps;
 
-import agh.ics.oop.Vector2d;
+import agh.ics.oop.mapparts.Vector2d;
 import agh.ics.oop.mapparts.Animal;
 import agh.ics.oop.mapparts.IMapElement;
 
+import java.util.ConcurrentModificationException;
+import java.util.LinkedList;
 import java.util.Set;
 
 public abstract class AbstractMagicMap extends AbstractMap {
@@ -15,17 +17,10 @@ public abstract class AbstractMagicMap extends AbstractMap {
         super(width, height, animalsInitialEnergy, plantsEnergy, jungleRatio, moveCost);
     }
 
-    public void cloneAnimals()
+    public void cloneAnimals(LinkedList<Animal> animals)
     {
-        Set<Vector2d> currentPositions = this.animals.keySet();
-
-        for (Vector2d position: currentPositions)
-        {
-            for (Animal animal: this.animals.get(position))
-            {
-                this.placeAnimal(new Animal(this, animal.getGenes()));
-            }
-        }
+        for (Animal animal : animals)
+            this.placeAnimal(new Animal(this, animal.getGenes()));
 
         this.clonedAnimalsCounter++;
     }
@@ -36,9 +31,16 @@ public abstract class AbstractMagicMap extends AbstractMap {
         super.mapElementRemoved(mapElement);
         if (mapElement instanceof Animal)
         {
-            if (clonedAnimalsCounter < 3 && animals.values().size() == 5)
+            if (clonedAnimalsCounter < 3)
             {
-                cloneAnimals();
+                LinkedList<Animal> animals = new LinkedList<>();
+                for (Vector2d position: this.animals.keySet())
+                {
+                    for (Animal animal: this.animals.get(position))
+                        animals.add(animal);
+                }
+                if (animals.size() == 5)
+                    cloneAnimals(animals);
             }
         }
     }

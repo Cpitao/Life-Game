@@ -1,5 +1,6 @@
-package agh.ics.oop;
+package agh.ics.oop.observers;
 
+import agh.ics.oop.mapparts.Vector2d;
 import agh.ics.oop.mapparts.Animal;
 
 public interface IPositionChangeObserver {

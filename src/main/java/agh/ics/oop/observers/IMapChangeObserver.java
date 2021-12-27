@@ -1,4 +1,4 @@
-package agh.ics.oop;
+package agh.ics.oop.observers;
 
 import agh.ics.oop.maps.AbstractMap;
 import javafx.scene.layout.GridPane;

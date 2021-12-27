@@ -1,17 +1,23 @@
-package agh.ics.oop.StatTrackers;
+package agh.ics.oop.stattrackers;
 
-import agh.ics.oop.*;
-import agh.ics.oop.GuiStats.StatsPanel;
+import agh.ics.oop.guistats.StatsPanel;
 import agh.ics.oop.mapparts.Animal;
+import agh.ics.oop.observers.*;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.LinkedList;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MapStatsTracker {
 
     private StatsPanel GUIObserver;
 
     private GenesStatsTracker genesStatsTracker = new GenesStatsTracker();
-    private AnimalCountTracker animalCountTracker = new AnimalCountTracker();
+    private AnimalStatsTracker animalStatsTracker = new AnimalStatsTracker();
     private PlantCountTracker plantCountTracker = new PlantCountTracker();
 
     private LinkedList<INewAnimalObserver> newAnimalObservers = new LinkedList<>();
@@ -25,13 +31,15 @@ public class MapStatsTracker {
         this.newAnimalObservers.add(genesStatsTracker);
         this.animalDeathObservers.add(genesStatsTracker);
 
-        this.newAnimalObservers.add(animalCountTracker);
-        this.animalDeathObservers.add(animalCountTracker);
-        this.newEraObservers.add(animalCountTracker);
+        this.newAnimalObservers.add(animalStatsTracker);
+        this.animalDeathObservers.add(animalStatsTracker);
+        this.newEraObservers.add(animalStatsTracker);
 
         this.plantEatenObservers.add(plantCountTracker);
         this.newPlantObservers.add(plantCountTracker);
         this.newEraObservers.add(plantCountTracker);
+
+
     }
 
     public void newAnimal(Animal animal)
@@ -76,9 +84,9 @@ public class MapStatsTracker {
         return genesStatsTracker;
     }
 
-    public AnimalCountTracker getAnimalCountTracker()
+    public AnimalStatsTracker getAnimalStatsTracker()
     {
-        return animalCountTracker;
+        return animalStatsTracker;
     }
 
     public PlantCountTracker getPlantCountTracker()
@@ -91,4 +99,33 @@ public class MapStatsTracker {
         this.GUIObserver = statsPanel;
     }
 
+    public void saveToCSV(String outFile) throws IOException
+    {
+        LinkedList<String> out = new LinkedList<>();
+        out.add("\"Animal counts\"");
+        out.addAll(toCSV(getAnimalStatsTracker().getHistoricalData()));
+        out.add("\"Plant counts\"");
+        out.addAll(toCSV(getPlantCountTracker().getHistoricalData()));
+        out.add("\"Average energy levels\"");
+        out.addAll(toCSV(getAnimalStatsTracker().getHistoricalAvgEnergy()));
+        out.add("\"Average life length\"");
+        out.addAll(toCSV(getAnimalStatsTracker().getHistoricalAvgAge()));
+
+        File csvOut = new File(outFile + "\\out.csv");
+        try (PrintWriter pw = new PrintWriter(csvOut))
+        {
+            out.stream()
+                    .forEach(pw::println);
+        }
+    }
+
+    private LinkedList<String> toCSV(LinkedList<Number> numbers) {
+        LinkedList<String> result = new LinkedList<>();
+        for (Number number : numbers)
+        {
+            result.add(number.toString());
+        }
+
+        return result;
+    }
 }

@@ -1,7 +1,6 @@
 package agh.ics.oop.maps;
 
-import agh.ics.oop.Vector2d;
-import agh.ics.oop.mapparts.IMapElement;
+import agh.ics.oop.mapparts.Vector2d;
 
 public class HardBoundMap extends AbstractMap{
 
