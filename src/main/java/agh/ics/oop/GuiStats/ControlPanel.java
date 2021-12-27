@@ -1,5 +1,7 @@
-package agh.ics.oop;
+package agh.ics.oop.GuiStats;
 
+import agh.ics.oop.App;
+import agh.ics.oop.SimulationEngine;
 import agh.ics.oop.mapparts.Genes;
 import agh.ics.oop.maps.AbstractMap;
 import javafx.event.ActionEvent;
@@ -11,6 +13,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 
 import java.util.LinkedList;
 
@@ -81,10 +84,10 @@ public class ControlPanel {
 
     public HBox getSpeedControls(SimulationEngine engine)
     {
-        Label speedLabel = new Label("Move delay set to \n" +
-                "          100ms");
-        speedLabel.setFont(new Font(15));
-        speedLabel.setPrefWidth(controlPanelWidth / 6);
+        Label speedLabel = new Label("Move delay\n" + engine.getMoveDelay() + "ms");
+        speedLabel.setFont(new Font(12));
+        speedLabel.setMinWidth(controlPanelWidth / 6);
+        speedLabel.setTextAlignment(TextAlignment.CENTER);
         GridPane.setHalignment(speedLabel, HPos.CENTER);
 
         Button lowerDelayButton = new Button("-");
@@ -94,9 +97,9 @@ public class ControlPanel {
             @Override
             public void handle(ActionEvent event) {
                 engine.increaseSpeed();
-                speedLabel.setText("Move delay set to\n          "
+                speedLabel.setText("Move delay\n"
                         + engine.getMoveDelay() + "ms");
-                speedLabel.setFont(new Font(15));
+                speedLabel.setFont(new Font(12));
             }
         });
 
@@ -107,9 +110,9 @@ public class ControlPanel {
             @Override
             public void handle(ActionEvent event) {
                 engine.decreaseSpeed();
-                speedLabel.setText("Move delay set to \n          "
+                speedLabel.setText("Move delay\n"
                         + engine.getMoveDelay() + "ms");
-                speedLabel.setFont(new Font(15));
+                speedLabel.setFont(new Font(12));
             }
         });
 

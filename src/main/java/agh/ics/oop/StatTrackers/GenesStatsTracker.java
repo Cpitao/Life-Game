@@ -2,6 +2,7 @@ package agh.ics.oop.StatTrackers;
 
 import agh.ics.oop.IAnimalDeathObserver;
 import agh.ics.oop.INewAnimalObserver;
+import agh.ics.oop.INewEraObserver;
 import agh.ics.oop.mapparts.Animal;
 import agh.ics.oop.mapparts.Genes;
 import agh.ics.oop.mapparts.IMapElement;
@@ -27,8 +28,6 @@ public class GenesStatsTracker implements IAnimalDeathObserver, INewAnimalObserv
 
     public void increaseGenes(Genes genes)
     {
-        if (genes == null)
-            throw new RuntimeException("AAAAAAAAAA");
         if (genotypeCounter.get(genes) == null)
             genotypeCounter.put(genes, 1);
         else
@@ -57,7 +56,7 @@ public class GenesStatsTracker implements IAnimalDeathObserver, INewAnimalObserv
     public int getGenesModeCount()
     {
         int genesModeCount = 0;
-        // too fast animation may result in concurrent modification exception, can be safely ignored
+        // too fast animation may result in concurrent modification exception, can be ignored
         try {
             for (Genes genes1 : genotypeCounter.keySet()) {
                 if (genotypeCounter.get(genes1) > genesModeCount)

@@ -18,7 +18,6 @@ public class SimulationEngine implements IEngine, Runnable{
     {
         this.map = map;
         mapChangeObservers.add(app);
-        mapChangeObservers.add(map.getMapStatisticsTracker().getAnimalCountTracker());
     }
 
     @Override
@@ -33,12 +32,15 @@ public class SimulationEngine implements IEngine, Runnable{
                     }
                 }
             }
+
             removeDeadAnimals();
             moveAllAnimals();
             eatAll();
             reproduceAll();
             generatePlants();
             notifyMapChanged();
+            map.getMapStatisticsTracker().newEra();
+
             try {
                 Thread.sleep(moveDelay);
             } catch (InterruptedException e) {
@@ -143,7 +145,6 @@ public class SimulationEngine implements IEngine, Runnable{
     {
         for (IMapChangeObserver observer: mapChangeObservers)
             observer.mapUpdated(this.map);
-
     }
 
     public void changeRunningState()

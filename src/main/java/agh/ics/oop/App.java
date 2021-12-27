@@ -1,5 +1,7 @@
 package agh.ics.oop;
 
+import agh.ics.oop.GuiStats.ControlPanel;
+import agh.ics.oop.GuiStats.StatsPanel;
 import agh.ics.oop.mapparts.Animal;
 import agh.ics.oop.maps.AbstractMap;
 import javafx.application.Application;
@@ -127,7 +129,7 @@ public class App extends Application implements IMapChangeObserver{
     private void setMapsScene(int leftAnimalCount, int rightAnimalCount)
     {
         container = new HBox();
-        container.setPadding(new Insets(5, 5, 5, 5));
+        container.setPadding(new Insets(5));
 
         middlePanel = new VBox();
         ControlPanel controlPanel = new ControlPanel(this, controlPanelWidth);
@@ -149,7 +151,6 @@ public class App extends Application implements IMapChangeObserver{
 
         mapUpdated(leftMap);
         mapUpdated(rightMap);
-        this.statsUpdated();
 
         leftEngineThread.start();
         rightEngineThread.start();
@@ -161,17 +162,6 @@ public class App extends Application implements IMapChangeObserver{
 
     public SimulationEngine getRightEngine() {
         return rightEngine;
-    }
-
-    public void statsUpdated()
-    {
-        Platform.runLater(() -> {
-            this.statsPanelGrid = this.statsPanel.getStatsGrid();
-            this.middlePanel.getChildren().remove(1);
-            this.middlePanel.getChildren().add(statsPanelGrid);
-            currentScene.setRoot(container);
-            primaryStage.setScene(currentScene);
-        });
     }
 
     public double getWindowHeight()

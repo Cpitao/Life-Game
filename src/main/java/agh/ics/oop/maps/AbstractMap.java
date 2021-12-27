@@ -44,11 +44,6 @@ public abstract class AbstractMap implements IPositionChangeObserver, IMapElemen
 
         setJungleBounds(width, height, jungleRatio);
         initializeFreeCells();
-
-//        for (int i=0; i < animalsCount; i++)
-//        {
-//            this.placeAnimal(new Animal(this));
-//        }
     }
 
     public void setJungleBounds(int width, int height, double jungleRatio)

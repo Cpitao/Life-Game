@@ -1,8 +1,7 @@
 package agh.ics.oop.StatTrackers;
 
-import agh.ics.oop.IAnimalDeathObserver;
-import agh.ics.oop.INewAnimalObserver;
-import agh.ics.oop.StatsPanel;
+import agh.ics.oop.*;
+import agh.ics.oop.GuiStats.StatsPanel;
 import agh.ics.oop.mapparts.Animal;
 
 import java.util.LinkedList;
@@ -17,7 +16,9 @@ public class MapStatsTracker {
 
     private LinkedList<INewAnimalObserver> newAnimalObservers = new LinkedList<>();
     private LinkedList<IAnimalDeathObserver> animalDeathObservers = new LinkedList<>();
-
+    private LinkedList<INewPlantObserver> newPlantObservers = new LinkedList<>();
+    private LinkedList<IPlantEatenObserver> plantEatenObservers = new LinkedList<>();
+    private LinkedList<INewEraObserver> newEraObservers = new LinkedList<>();
 
     public MapStatsTracker()
     {
@@ -26,6 +27,11 @@ public class MapStatsTracker {
 
         this.newAnimalObservers.add(animalCountTracker);
         this.animalDeathObservers.add(animalCountTracker);
+        this.newEraObservers.add(animalCountTracker);
+
+        this.plantEatenObservers.add(plantCountTracker);
+        this.newPlantObservers.add(plantCountTracker);
+        this.newEraObservers.add(plantCountTracker);
     }
 
     public void newAnimal(Animal animal)
@@ -34,8 +40,6 @@ public class MapStatsTracker {
         {
             observer.newAnimalPlaced(animal);
         }
-
-        GUIObserver.refreshGUI();
     }
 
     public void animalDied(Animal animal)
@@ -44,17 +48,28 @@ public class MapStatsTracker {
         {
             observer.animalDied(animal);
         }
-        GUIObserver.refreshGUI();
     }
 
     public void newPlant()
     {
-        plantCountTracker.newPlant();
+        for (INewPlantObserver observer: newPlantObservers)
+            observer.newPlant();
     }
 
     public void plantEaten()
     {
-        plantCountTracker.plantEaten();
+        for (IPlantEatenObserver observer: plantEatenObservers)
+            observer.plantEaten();
+    }
+
+    public void newEra()
+    {
+        for (INewEraObserver observer: newEraObservers)
+        {
+            observer.newEra();
+        }
+
+        GUIObserver.newEraGUIUpdates();
     }
 
     public GenesStatsTracker getGenesStatsTracker() {

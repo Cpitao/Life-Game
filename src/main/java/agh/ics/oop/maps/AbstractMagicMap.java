@@ -2,8 +2,8 @@ package agh.ics.oop.maps;
 
 import agh.ics.oop.Vector2d;
 import agh.ics.oop.mapparts.Animal;
+import agh.ics.oop.mapparts.IMapElement;
 
-import java.util.Random;
 import java.util.Set;
 
 public abstract class AbstractMagicMap extends AbstractMap {
@@ -17,9 +17,6 @@ public abstract class AbstractMagicMap extends AbstractMap {
 
     public void cloneAnimals()
     {
-        if (clonedAnimalsCounter >= 3)
-            return;
-
         Set<Vector2d> currentPositions = this.animals.keySet();
 
         for (Vector2d position: currentPositions)
@@ -31,5 +28,18 @@ public abstract class AbstractMagicMap extends AbstractMap {
         }
 
         this.clonedAnimalsCounter++;
+    }
+
+    @Override
+    public void mapElementRemoved(IMapElement mapElement)
+    {
+        super.mapElementRemoved(mapElement);
+        if (mapElement instanceof Animal)
+        {
+            if (clonedAnimalsCounter < 3 && animals.values().size() == 5)
+            {
+                cloneAnimals();
+            }
+        }
     }
 }
