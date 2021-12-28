@@ -108,7 +108,17 @@ public class MapStatsTracker {
         input[2] = getAnimalStatsTracker().getHistoricalAvgEnergy();
         input[3] = getAnimalStatsTracker().getHistoricalAvgAge();
         out.addAll(Arrays.stream(toCSV(input)).toList());
-
+        Number[] averages = new Number[4];
+        StringBuilder averagesString = new StringBuilder();
+        out.add("averages");
+        for (int i=0; i < 3; i++)
+        {
+            averages[i] = getAverage(input[i]);
+            averagesString.append(averages[i].toString() + ",");
+        }
+        averages[3] = getAverage(input[3]);
+        averagesString.append(averages[3].toString());
+        out.add(averagesString.toString());
         File csvOut = new File(outFile);
         try (PrintWriter pw = new PrintWriter(csvOut))
         {
@@ -133,5 +143,14 @@ public class MapStatsTracker {
         }
 
         return result;
+    }
+
+    private Number getAverage(LinkedList<Number> numbers)
+    {
+        int sum = 0;
+        for (Number number : numbers) {
+            sum += number.doubleValue();
+        }
+        return sum / numbers.size();
     }
 }

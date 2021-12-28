@@ -20,8 +20,8 @@ public abstract class CountTracker implements INewEraObserver {
     {
         XYChart.Series<Number, Number> series = new XYChart.Series<>();
         int i=0;
-        if (currentEra > 2000)
-            i = currentEra - 2000;
+//        if (currentEra > 2000)
+//            i = currentEra - 2000;
         try {
             for (Number number : historicalData) {
                 series.getData().add(new XYChart.Data<>(i, number));
@@ -42,8 +42,8 @@ public abstract class CountTracker implements INewEraObserver {
     public void newEra() {
         historicalData.add(currentData);
         currentEra++;
-        if (historicalData.size() > 100)
-            historicalData.remove(0);
+//        if (historicalData.size() > 2000)
+//            historicalData.remove(0);
     }
 
     public LinkedList<Number> getHistoricalData() {

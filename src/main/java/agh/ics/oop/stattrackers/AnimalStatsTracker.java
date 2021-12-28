@@ -51,10 +51,10 @@ public class AnimalStatsTracker extends CountTracker implements INewAnimalObserv
         historicalAvgEnergy.add(getAvgEnergy());
         historicalAvgAge.add(getAvgAge());
         super.newEra();
-        if (historicalAvgEnergy.size() > 2000)
-            historicalAvgEnergy.remove(0);
-        if (historicalAvgAge.size() > 2000)
-            historicalAvgAge.remove(0);
+//        if (historicalAvgEnergy.size() > 2000)
+//            historicalAvgEnergy.remove(0);
+//        if (historicalAvgAge.size() > 2000)
+//            historicalAvgAge.remove(0);
     }
 
     public double getAvgEnergy()
