@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -38,8 +39,6 @@ public class MapStatsTracker {
         this.plantEatenObservers.add(plantCountTracker);
         this.newPlantObservers.add(plantCountTracker);
         this.newEraObservers.add(plantCountTracker);
-
-
     }
 
     public void newAnimal(Animal animal)
@@ -102,16 +101,15 @@ public class MapStatsTracker {
     public void saveToCSV(String outFile) throws IOException
     {
         LinkedList<String> out = new LinkedList<>();
-        out.add("\"Animal counts\"");
-        out.addAll(toCSV(getAnimalStatsTracker().getHistoricalData()));
-        out.add("\"Plant counts\"");
-        out.addAll(toCSV(getPlantCountTracker().getHistoricalData()));
-        out.add("\"Average energy levels\"");
-        out.addAll(toCSV(getAnimalStatsTracker().getHistoricalAvgEnergy()));
-        out.add("\"Average life length\"");
-        out.addAll(toCSV(getAnimalStatsTracker().getHistoricalAvgAge()));
+        out.add("\"Animal counts\",\"Plant counts\",\"Average energy levels\",\"Average life length\"");
+        LinkedList<Number>[] input = new LinkedList[4];
+        input[0] = getAnimalStatsTracker().getHistoricalData();
+        input[1] = getPlantCountTracker().getHistoricalData();
+        input[2] = getAnimalStatsTracker().getHistoricalAvgEnergy();
+        input[3] = getAnimalStatsTracker().getHistoricalAvgAge();
+        out.addAll(Arrays.stream(toCSV(input)).toList());
 
-        File csvOut = new File(outFile + "\\out.csv");
+        File csvOut = new File(outFile);
         try (PrintWriter pw = new PrintWriter(csvOut))
         {
             out.stream()
@@ -119,11 +117,19 @@ public class MapStatsTracker {
         }
     }
 
-    private LinkedList<String> toCSV(LinkedList<Number> numbers) {
-        LinkedList<String> result = new LinkedList<>();
-        for (Number number : numbers)
+    private String[] toCSV(LinkedList<Number>[] numbersArr) {
+        String[] result = new String[numbersArr[0].size()];
+        int k = 0;
+        for (Number number: numbersArr[0])
         {
-            result.add(number.toString());
+            result[k] = number.toString();
+            k++;
+        }
+        for (int i=1; i < numbersArr.length; i++) {
+            for (int j=0; j < numbersArr[i].size(); j++)
+            {
+                result[j] += "," + numbersArr[i].get(j);
+            }
         }
 
         return result;

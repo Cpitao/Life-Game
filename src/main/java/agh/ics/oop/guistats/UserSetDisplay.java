@@ -1,7 +1,7 @@
 package agh.ics.oop.guistats;
 
 import agh.ics.oop.App;
-import agh.ics.oop.UserSetAnimalTracker;
+import agh.ics.oop.stattrackers.UserSetAnimalTracker;
 import agh.ics.oop.observers.IGUIChangeObserver;
 import javafx.application.Platform;
 import javafx.geometry.Insets;

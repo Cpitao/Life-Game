@@ -1,6 +1,6 @@
 package agh.ics.oop.mapparts;
 
-import agh.ics.oop.UserSetAnimalTracker;
+import agh.ics.oop.stattrackers.UserSetAnimalTracker;
 import agh.ics.oop.maps.AbstractMap;
 import agh.ics.oop.observers.IAnimalEnergyChangeObserver;
 import agh.ics.oop.observers.IChildrenCountObserver;

@@ -1,5 +1,6 @@
-package agh.ics.oop;
+package agh.ics.oop.GUI;
 
+import agh.ics.oop.App;
 import agh.ics.oop.maps.*;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;

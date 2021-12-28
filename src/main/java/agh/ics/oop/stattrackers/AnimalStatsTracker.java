@@ -47,10 +47,9 @@ public class AnimalStatsTracker extends CountTracker implements INewAnimalObserv
     @Override
     public void newEra()
     {
-        if (currentData != 0)
-            historicalAvgEnergy.add(totalEnergy / currentData);
-        if (animalsDied > 0)
-            historicalAvgAge.add(totalAge / animalsDied);
+
+        historicalAvgEnergy.add(getAvgEnergy());
+        historicalAvgAge.add(getAvgAge());
         super.newEra();
         if (historicalAvgEnergy.size() > 2000)
             historicalAvgEnergy.remove(0);

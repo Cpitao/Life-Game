@@ -1,5 +1,7 @@
 package agh.ics.oop;
 
+import agh.ics.oop.GUI.InitialUserSetup;
+import agh.ics.oop.GUI.MapVisualizer;
 import agh.ics.oop.guistats.ControlPanel;
 import agh.ics.oop.guistats.StatsPanel;
 import agh.ics.oop.mapparts.Animal;
@@ -7,7 +9,6 @@ import agh.ics.oop.mapparts.Genes;
 import agh.ics.oop.mapparts.Vector2d;
 import agh.ics.oop.maps.AbstractMap;
 import agh.ics.oop.observers.IMapChangeObserver;
-import agh.ics.oop.stattrackers.MapStatsTracker;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -16,13 +17,12 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.*;
-import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
-import java.util.Map;
 
 public class App extends Application implements IMapChangeObserver {
 
@@ -178,10 +178,14 @@ public class App extends Application implements IMapChangeObserver {
         leftSave.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                DirectoryChooser directoryChooser = new DirectoryChooser();
-                File selectedDirectory = directoryChooser.showDialog(primaryStage);
+                if (leftEngine.isRunning())
+                    return;
+                FileChooser fileChooser = new FileChooser();
+                File selectedFile = fileChooser.showOpenDialog(primaryStage);
+                if (selectedFile == null)
+                    return;
                 try {
-                    leftMap.getMapStatisticsTracker().saveToCSV(selectedDirectory.getAbsolutePath());
+                    leftMap.getMapStatisticsTracker().saveToCSV(selectedFile.getAbsolutePath());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -192,10 +196,14 @@ public class App extends Application implements IMapChangeObserver {
         rightSave.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                DirectoryChooser directoryChooser = new DirectoryChooser();
-                File selectedDirectory = directoryChooser.showDialog(primaryStage);
+                if (rightEngine.isRunning())
+                    return;
+                FileChooser fileChooser = new FileChooser();
+                File selectedFile = fileChooser.showOpenDialog(primaryStage);
+                if (selectedFile == null)
+                    return;
                 try {
-                    rightMap.getMapStatisticsTracker().saveToCSV(selectedDirectory.getAbsolutePath());
+                    rightMap.getMapStatisticsTracker().saveToCSV(selectedFile.getAbsolutePath());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

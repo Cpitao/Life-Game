@@ -1,6 +1,6 @@
 package agh.ics.oop.maps;
 
-import agh.ics.oop.UserSetAnimalTracker;
+import agh.ics.oop.stattrackers.UserSetAnimalTracker;
 import agh.ics.oop.mapparts.Plant;
 import agh.ics.oop.mapparts.Vector2d;
 import agh.ics.oop.observers.IMapElementRemovedObserver;

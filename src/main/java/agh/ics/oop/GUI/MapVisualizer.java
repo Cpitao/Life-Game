@@ -1,7 +1,8 @@
-package agh.ics.oop;
+package agh.ics.oop.GUI;
 
 import agh.ics.oop.GUI.AnimalMapElement;
 import agh.ics.oop.GUI.GUIMapElement;
+import agh.ics.oop.SimulationEngine;
 import agh.ics.oop.guistats.StatsPanel;
 import agh.ics.oop.mapparts.Animal;
 import agh.ics.oop.mapparts.Vector2d;
